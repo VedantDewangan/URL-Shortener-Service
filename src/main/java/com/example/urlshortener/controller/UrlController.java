@@ -25,7 +25,7 @@ public class UrlController {
         String originalUrl = shortenUrlRequest.url();
         String shortCode = urlShortenerService.shortenUrl(originalUrl);
 
-        String shortUrl = "http://localhost:8000/" + shortCode;
+        String shortUrl = "http://localhost:8080/api/v1/url/" + shortCode;
 
         ShortenUrlResponse shortenUrlResponse = new ShortenUrlResponse(shortUrl);
 

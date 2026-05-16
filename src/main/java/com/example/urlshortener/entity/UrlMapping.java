@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class UrlMapping {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Lob
     private String originalUrl;
@@ -27,5 +27,5 @@ public class UrlMapping {
 
     private LocalDateTime createdAt;
 
-    private Long clickCount;
+    private long clickCount;
 }
