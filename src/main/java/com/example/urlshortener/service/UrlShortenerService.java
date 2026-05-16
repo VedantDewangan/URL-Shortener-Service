@@ -1,0 +1,53 @@
+package com.example.urlshortener.service;
+
+import com.example.urlshortener.entity.UrlMapping;
+import com.example.urlshortener.repository.UrlMappingRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+@Service
+public class UrlShortenerService {
+    private static final String BASE62_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private final UrlMappingRepository urlMappingRepository;
+
+    public UrlShortenerService(UrlMappingRepository urlMappingRepository){
+        this.urlMappingRepository = urlMappingRepository;
+    }
+
+    @Transactional
+    public String shortenUrl(String originalUrl){
+        UrlMapping urlMapping = new UrlMapping();
+
+        urlMapping.setOriginalUrl(originalUrl);
+        urlMapping.setCreatedAt(LocalDateTime.now());
+
+        UrlMapping savedUrlMapping = urlMappingRepository.save(urlMapping);
+
+        String shortCode = encodeBase62(savedUrlMapping.getId());
+
+        savedUrlMapping.setShortCode(shortCode);
+        urlMappingRepository.save(savedUrlMapping);
+
+        return shortCode;
+    }
+
+    public String encodeBase62(Long number){
+        if(number==0){
+            return String.valueOf(BASE62_CHARS.charAt(0));
+        }
+
+        long num = number;
+        StringBuilder sb = new StringBuilder();
+
+        while(num>0){
+            int rem = (int) (num % 62);
+            sb.append(BASE62_CHARS.charAt(rem));
+            num = num/62;
+        }
+
+        return sb.reverse().toString();
+    }
+
+}
