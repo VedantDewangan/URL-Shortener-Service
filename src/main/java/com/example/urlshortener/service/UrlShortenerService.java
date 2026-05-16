@@ -1,6 +1,7 @@
 package com.example.urlshortener.service;
 
 import com.example.urlshortener.entity.UrlMapping;
+import com.example.urlshortener.exception.UrlNotFoundException;
 import com.example.urlshortener.repository.UrlMappingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,17 @@ public class UrlShortenerService {
         urlMappingRepository.save(savedUrlMapping);
 
         return shortCode;
+    }
+
+    @Transactional
+    public String getOriginalUrlAndIncrementClicks(String shortCode){
+        UrlMapping urlMapping = urlMappingRepository.findByShortCode(shortCode).
+                orElseThrow(() -> new UrlNotFoundException("URL not found for short code: " + shortCode));
+
+        urlMapping.setClickCount(urlMapping.getClickCount() + 1);
+        urlMappingRepository.save(urlMapping);
+
+        return urlMapping.getOriginalUrl();
     }
 
     public String encodeBase62(Long number){
