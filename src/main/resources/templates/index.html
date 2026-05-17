@@ -633,11 +633,6 @@ async function getStats() {
             return;
         }
 
-        if (!response.ok) {
-            alert("Something went wrong");
-            return;
-        }
-
         const data = await response.json();
 
         document.getElementById("originalUrl").innerText =

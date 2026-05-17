@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: urlshortener-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: urlshortener
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: urlshortener-app
+
+    depends_on:
+      - mysql
+
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
