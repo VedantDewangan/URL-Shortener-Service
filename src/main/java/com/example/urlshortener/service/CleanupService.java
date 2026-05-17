@@ -20,18 +20,16 @@ public class CleanupService {
         this.urlMappingRepository = urlMappingRepository;
     }
 
-    @Scheduled(cron = "0 0 1 * * ?")
+    @Scheduled(fixedRate = 60000)
     @Transactional
     public void cleanupExpiredUrls() {
-        logger.info("Starting scheduled job: Cleaning up expired URL mappings...");
-        LocalDateTime now = LocalDateTime.now();
+        logger.info("Running cleanup job...");
 
-        long deletedCount = urlMappingRepository.deleteByExpirationDateBefore(now);
+        long deletedCount =
+                urlMappingRepository.deleteByExpirationDateBefore(
+                        LocalDateTime.now()
+                );
 
-        if (deletedCount > 0) {
-            logger.info("Finished scheduled job: Successfully deleted " + deletedCount + " expired URL mappings.");
-        } else {
-            logger.info("Finished scheduled job: No expired URL mappings found to delete.");
-        }
+        logger.info("Deleted {} expired URLs", deletedCount);
     }
 }

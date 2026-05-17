@@ -9,11 +9,16 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "url_mapping")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name = "url_mapping",
+        indexes = {
+                @Index(name = "idx_shortcode", columnList = "shortCode")
+        }
+)
 public class UrlMapping {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

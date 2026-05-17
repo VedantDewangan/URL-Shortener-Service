@@ -22,34 +22,39 @@ public class UrlShortenerService {
 
     @Transactional
     public String shortenUrl(String originalUrl, String customAlias, Integer hoursToExpire){
+
+        if(customAlias != null && !customAlias.isBlank()){
+            Optional<UrlMapping> existing = urlMappingRepository.findByShortCode(customAlias);
+
+            if(existing.isPresent()){
+                throw new AliasAlreadyExistsException(
+                        "Alias " + customAlias + " is already in use."
+                );
+            }
+        }
+
         UrlMapping urlMapping = new UrlMapping();
 
         urlMapping.setOriginalUrl(originalUrl);
         urlMapping.setCreatedAt(LocalDateTime.now());
 
-        UrlMapping savedUrlMapping = urlMappingRepository.save(urlMapping);
-
         if(hoursToExpire != null){
-            LocalDateTime expireDate = LocalDateTime.now().plusHours(hoursToExpire);
-            savedUrlMapping.setExpirationDate(expireDate);
+            urlMapping.setExpirationDate(
+                    LocalDateTime.now().plusHours(hoursToExpire)
+            );
         }
+
+        UrlMapping saved = urlMappingRepository.save(urlMapping);
+
+        String shortCode;
 
         if(customAlias != null && !customAlias.isBlank()){
-            Optional<UrlMapping> existingUrlMapping = urlMappingRepository.findByShortCode(customAlias);
-
-            if(existingUrlMapping.isPresent()){
-                throw new AliasAlreadyExistsException("Alias " + customAlias + " is already in use.");
-            }
-
-            savedUrlMapping.setShortCode(customAlias);
-            urlMappingRepository.save(savedUrlMapping);
-            return customAlias;
+            shortCode = customAlias;
+        } else {
+            shortCode = encodeBase62(saved.getId());
         }
 
-        String shortCode = encodeBase62(savedUrlMapping.getId());
-
-        savedUrlMapping.setShortCode(shortCode);
-        urlMappingRepository.save(savedUrlMapping);
+        saved.setShortCode(shortCode);
 
         return shortCode;
     }
