@@ -1,0 +1,37 @@
+package com.example.urlshortener.service;
+
+import com.example.urlshortener.repository.UrlMappingRepository;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.logging.Logger;
+
+@Service
+public class CleanupService {
+
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(CleanupService.class);
+
+    private final UrlMappingRepository urlMappingRepository;
+
+    public CleanupService(UrlMappingRepository urlMappingRepository){
+        this.urlMappingRepository = urlMappingRepository;
+    }
+
+    @Scheduled(cron = "0 0 1 * * ?")
+    @Transactional
+    public void cleanupExpiredUrls() {
+        logger.info("Starting scheduled job: Cleaning up expired URL mappings...");
+        LocalDateTime now = LocalDateTime.now();
+
+        long deletedCount = urlMappingRepository.deleteByExpirationDateBefore(now);
+
+        if (deletedCount > 0) {
+            logger.info("Finished scheduled job: Successfully deleted " + deletedCount + " expired URL mappings.");
+        } else {
+            logger.info("Finished scheduled job: No expired URL mappings found to delete.");
+        }
+    }
+}

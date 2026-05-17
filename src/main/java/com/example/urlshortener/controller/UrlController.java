@@ -24,8 +24,9 @@ public class UrlController {
     public ResponseEntity<ShortenUrlResponse> shortenUrl(@RequestBody @Valid ShortenUrlRequest shortenUrlRequest){
         String originalUrl = shortenUrlRequest.url();
         String customAlias = shortenUrlRequest.customAlias();
+        Integer hoursToExpire = shortenUrlRequest.hoursToExpire();
 
-        String shortCode = urlShortenerService.shortenUrl(originalUrl, customAlias);
+        String shortCode = urlShortenerService.shortenUrl(originalUrl, customAlias,hoursToExpire);
 
         String shortUrl = "http://localhost:8080/" + shortCode;
         ShortenUrlResponse shortenUrlResponse = new ShortenUrlResponse(shortUrl);

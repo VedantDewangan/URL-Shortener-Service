@@ -28,4 +28,6 @@ public class UrlMapping {
     private LocalDateTime createdAt;
 
     private long clickCount;
+
+    private LocalDateTime expirationDate;
 }

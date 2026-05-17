@@ -21,13 +21,18 @@ public class UrlShortenerService {
     }
 
     @Transactional
-    public String shortenUrl(String originalUrl, String customAlias){
+    public String shortenUrl(String originalUrl, String customAlias, Integer hoursToExpire){
         UrlMapping urlMapping = new UrlMapping();
 
         urlMapping.setOriginalUrl(originalUrl);
         urlMapping.setCreatedAt(LocalDateTime.now());
 
         UrlMapping savedUrlMapping = urlMappingRepository.save(urlMapping);
+
+        if(hoursToExpire != null){
+            LocalDateTime expireDate = LocalDateTime.now().plusHours(hoursToExpire);
+            savedUrlMapping.setExpirationDate(expireDate);
+        }
 
         if(customAlias != null && !customAlias.isBlank()){
             Optional<UrlMapping> existingUrlMapping = urlMappingRepository.findByShortCode(customAlias);
@@ -53,6 +58,10 @@ public class UrlShortenerService {
     public String getOriginalUrlAndIncrementClicks(String shortCode){
         UrlMapping urlMapping = urlMappingRepository.findByShortCode(shortCode).
                 orElseThrow(() -> new UrlNotFoundException("URL not found for short code: " + shortCode));
+
+        if (urlMapping.getExpirationDate() != null && urlMapping.getExpirationDate().isBefore(LocalDateTime.now())) {
+            throw new UrlNotFoundException("This link has expired and is no longer active.");
+        }
 
         urlMapping.setClickCount(urlMapping.getClickCount() + 1);
         urlMappingRepository.save(urlMapping);
