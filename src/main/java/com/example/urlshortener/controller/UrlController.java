@@ -23,8 +23,9 @@ public class UrlController {
     @PostMapping("/api/v1/url/shorten")
     public ResponseEntity<ShortenUrlResponse> shortenUrl(@RequestBody @Valid ShortenUrlRequest shortenUrlRequest){
         String originalUrl = shortenUrlRequest.url();
+        String customAlias = shortenUrlRequest.customAlias();
 
-        String shortCode = urlShortenerService.shortenUrl(originalUrl);
+        String shortCode = urlShortenerService.shortenUrl(originalUrl, customAlias);
 
         String shortUrl = "http://localhost:8080/" + shortCode;
         ShortenUrlResponse shortenUrlResponse = new ShortenUrlResponse(shortUrl);

@@ -2,12 +2,14 @@ package com.example.urlshortener.service;
 
 import com.example.urlshortener.dto.UrlStatsResponse;
 import com.example.urlshortener.entity.UrlMapping;
+import com.example.urlshortener.exception.AliasAlreadyExistsException;
 import com.example.urlshortener.exception.UrlNotFoundException;
 import com.example.urlshortener.repository.UrlMappingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class UrlShortenerService {
@@ -19,13 +21,25 @@ public class UrlShortenerService {
     }
 
     @Transactional
-    public String shortenUrl(String originalUrl){
+    public String shortenUrl(String originalUrl, String customAlias){
         UrlMapping urlMapping = new UrlMapping();
 
         urlMapping.setOriginalUrl(originalUrl);
         urlMapping.setCreatedAt(LocalDateTime.now());
 
         UrlMapping savedUrlMapping = urlMappingRepository.save(urlMapping);
+
+        if(customAlias != null && !customAlias.isBlank()){
+            Optional<UrlMapping> existingUrlMapping = urlMappingRepository.findByShortCode(customAlias);
+
+            if(existingUrlMapping.isPresent()){
+                throw new AliasAlreadyExistsException("Alias " + customAlias + " is already in use.");
+            }
+
+            savedUrlMapping.setShortCode(customAlias);
+            urlMappingRepository.save(savedUrlMapping);
+            return customAlias;
+        }
 
         String shortCode = encodeBase62(savedUrlMapping.getId());
 
