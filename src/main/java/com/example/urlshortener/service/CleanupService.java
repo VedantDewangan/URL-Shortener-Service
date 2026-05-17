@@ -2,17 +2,17 @@ package com.example.urlshortener.service;
 
 import com.example.urlshortener.repository.UrlMappingRepository;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.logging.Logger;
 
 @Service
 public class CleanupService {
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(CleanupService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CleanupService.class);
 
     private final UrlMappingRepository urlMappingRepository;
 
