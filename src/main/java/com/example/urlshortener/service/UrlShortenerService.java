@@ -1,5 +1,6 @@
 package com.example.urlshortener.service;
 
+import com.example.urlshortener.dto.UrlStatsResponse;
 import com.example.urlshortener.entity.UrlMapping;
 import com.example.urlshortener.exception.UrlNotFoundException;
 import com.example.urlshortener.repository.UrlMappingRepository;
@@ -62,4 +63,17 @@ public class UrlShortenerService {
         return sb.reverse().toString();
     }
 
+    public UrlStatsResponse getStats(String shortCode){
+        UrlMapping urlMapping = urlMappingRepository.findByShortCode(shortCode).
+                orElseThrow(() -> new UrlNotFoundException("URL not found for short code: " + shortCode));
+
+        String shortUrl = "http://localhost:8080/" + urlMapping.getShortCode();
+
+        return new UrlStatsResponse(
+                urlMapping.getOriginalUrl(),
+                shortUrl,
+                urlMapping.getCreatedAt(),
+                urlMapping.getClickCount()
+        );
+    }
 }
